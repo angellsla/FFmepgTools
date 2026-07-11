@@ -61,16 +61,10 @@ RELEASE_KEY_PASSWORD=your-key-password
 ### 5. 构建
 
 ```bash
-# Debug
-./gradlew :app:assembleDebug
-
-# Release
 ./gradlew :app:assembleRelease
 ```
 
 APK 输出目录：
-
-- Debug: `app/build/outputs/apk/debug/`
 - Release: `app/build/outputs/apk/release/`
 
 ## 构建配置与许可证影响
