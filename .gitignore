@@ -1,0 +1,64 @@
+# Gradle / Android build outputs
+.gradle/
+.kotlin/
+build/
+app/build/
+**/build/
+**/.cxx/
+**/.externalNativeBuild/
+captures/
+
+# Local machine config
+local.properties
+*.iml
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# IDE / AI workspace
+.trae/
+.agents/
+.codex/
+
+# Docs / generated dependency lists
+docs/
+deps.txt
+
+# Signing secrets
+app/keystore/
+**/keystore/
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+
+# Android artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Native / FFmpeg build outputs
+build-arm64-v8a/
+Android-ffmpeg/
+app/src/main/assets/ffmpeg/
+*.so
+*.a
+*.o
+*.lo
+*.la
+*.dylib
+*.dll
+*.exe
+
+# Vendored deps cloned by scripts
+deps/
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
