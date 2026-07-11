@@ -49,8 +49,8 @@ jobs:
           test -n "$RELEASE_KEY_ALIAS"
           test -n "$RELEASE_KEY_PASSWORD"
 
-          mkdir -p keystore
-          printf '%s' "$RELEASE_STORE_FILE_BASE64" | base64 -d > keystore/release.keystore
+          mkdir -p app/keystore
+          printf '%s' "$RELEASE_STORE_FILE_BASE64" | base64 -d > app/keystore/release.keystore
           cat > local.properties <<EOF
           sdk.dir=$ANDROID_SDK_ROOT
           RELEASE_STORE_FILE=keystore/release.keystore
