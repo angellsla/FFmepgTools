@@ -21,8 +21,8 @@ android {
         applicationId = "com.devobject.ffmpegtools"
         minSdk = 28
         targetSdk = 28
-        versionCode = 10000
-        versionName = "1.0.0"
+        versionCode = 10200
+        versionName = "1.2.0"
 
         ndk {
             abiFilters += "arm64-v8a"
