@@ -152,7 +152,8 @@ private fun ImportActionDialog(
         AppDestination.Video to "视频转码",
         AppDestination.Audio to "音频转码",
         AppDestination.Extract to "提取音频",
-        AppDestination.Mux to "音视频合并"
+        AppDestination.Mux to "音视频合并",
+        AppDestination.Info to "查看媒体信息"
     )
 
     OverlayDialog(

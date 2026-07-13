@@ -2,6 +2,7 @@ package com.devobject.ffmpegtools
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,13 +18,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIncomingIntent(intent)
         setContent {
             val uiState by viewModel.state.collectAsState()
             FfmpegToolsTheme(themeMode = uiState.themeMode) {
                 FfmpegToolsApp(viewModel = viewModel)
             }
         }
+        // 在 Compose 初始化完成后再处理外部传入的 URI，避免状态丢失
+        handleIncomingIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -35,7 +37,12 @@ class MainActivity : ComponentActivity() {
         val action = intent.action ?: return
         val uri = when (action) {
             Intent.ACTION_VIEW -> intent.data
-            Intent.ACTION_SEND -> intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            Intent.ACTION_SEND -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            }
             else -> null
         } ?: return
         viewModel.handleExternalSharedUri(uri)

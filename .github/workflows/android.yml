@@ -30,6 +30,43 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Set up Android NDK r28c
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28c
+          link-to-sdk: true
+
+      - name: Install FFmpeg build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config meson cmake git nasm
+
+      - name: Cache FFmpeg deps
+        id: cache-ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            Android-ffmpeg
+          key: ffmpeg-deps-${{ runner.os }}-${{ hashFiles('scripts/build-ffmpeg-android.sh', 'scripts/clone-deps.sh', 'scripts/x265-android-toolchain.cmake') }}
+
+      - name: Clone FFmpeg deps
+        if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
+        run: bash scripts/clone-deps.sh
+
+      - name: Build FFmpeg
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_NDK_HOME }}
+        run: bash scripts/build-ffmpeg-android.sh
+
+      - name: Copy FFmpeg binaries to assets
+        run: |
+          mkdir -p app/src/main/assets/ffmpeg/arm64-v8a
+          cp Android-ffmpeg/ffmpeg app/src/main/assets/ffmpeg/arm64-v8a/ffmpeg
+          cp Android-ffmpeg/ffprobe app/src/main/assets/ffmpeg/arm64-v8a/ffprobe
+          cp Android-ffmpeg/libc++_shared.so app/src/main/assets/ffmpeg/arm64-v8a/libc++_shared.so
+
       - name: Validate keystore base64
         env:
           RELEASE_STORE_FILE_BASE64: ${{ secrets.RELEASE_STORE_FILE_BASE64 }}
@@ -49,8 +86,8 @@ jobs:
           test -n "$RELEASE_KEY_ALIAS"
           test -n "$RELEASE_KEY_PASSWORD"
 
-          mkdir -p app/keystore
-          printf '%s' "$RELEASE_STORE_FILE_BASE64" | base64 -d > app/keystore/release.keystore
+          mkdir -p keystore
+          printf '%s' "$RELEASE_STORE_FILE_BASE64" | base64 -d > keystore/release.keystore
           cat > local.properties <<EOF
           sdk.dir=$ANDROID_SDK_ROOT
           RELEASE_STORE_FILE=keystore/release.keystore

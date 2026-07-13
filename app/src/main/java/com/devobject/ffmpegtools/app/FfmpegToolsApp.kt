@@ -1,5 +1,6 @@
 package com.devobject.ffmpegtools.app
 
+import android.net.Uri
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -161,6 +163,7 @@ fun FfmpegToolsApp(viewModel: MainViewModel) {
 
     if (uiState.showExternalActionDialog) {
         ExternalActionDialog(
+            uri = uiState.externalSharedUri,
             fileName = uiState.externalSharedUri?.lastPathSegment ?: "未知文件",
             onDismiss = { viewModel.dismissExternalActionDialog() },
             onSelect = { destination ->
@@ -229,17 +232,31 @@ private fun RowScope.SettingsIcon(
 
 @Composable
 private fun ExternalActionDialog(
+    uri: Uri?,
     fileName: String,
     onDismiss: () -> Unit,
     onSelect: (AppDestination) -> Unit
 ) {
-    val options = listOf(
-        AppDestination.Video to "视频转码",
-        AppDestination.Audio to "音频转码",
-        AppDestination.Extract to "提取音频",
-        AppDestination.Mux to "音视频合并",
-        AppDestination.Info to "查看媒体信息"
-    )
+    val context = LocalContext.current
+    val mimeType = remember(uri) {
+        uri?.let { runCatching { context.contentResolver.getType(it) }.getOrNull() } ?: ""
+    }
+    val isVideo = mimeType.startsWith("video/")
+    val isAudio = mimeType.startsWith("audio/")
+
+    val options = buildList {
+        if (isVideo) {
+            add(AppDestination.Video to "视频转码")
+            add(AppDestination.Trim to "视频裁剪")
+            add(AppDestination.Gif to "视频转 GIF")
+            add(AppDestination.Extract to "提取音频")
+            add(AppDestination.Mux to "音视频合并")
+        } else if (isAudio) {
+            add(AppDestination.Audio to "音频转码")
+            add(AppDestination.Extract to "提取音频")
+        }
+        add(AppDestination.Info to "查看媒体信息")
+    }
 
     OverlayDialog(
         show = true,
